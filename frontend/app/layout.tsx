@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   description: "Document Intelligence Service",
 };
 
+import './globals.css';
+
 export default function RootLayout({
   children,
 }: Readonly<{
