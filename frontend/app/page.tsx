@@ -58,7 +58,7 @@ export default function Dashboard() {
                     </td>
                     <td className="py-4 px-6 text-gray-500">{new Date(doc.createdAt).toLocaleDateString()}</td>
                     <td className="py-4 px-6">
-                      <button className="text-blue-600 hover:text-blue-800 font-medium">Review</Link>
+                      <Link href={`/document/${doc.id}`} className="text-blue-600 hover:text-blue-800 font-medium">Review</Link>
                     </td>
                   </tr>
                 ))
