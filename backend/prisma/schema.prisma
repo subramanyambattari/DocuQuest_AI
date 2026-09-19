@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  passwordHash  String
+  name          String
+  role          String     @default("USER")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  documents     Document[]
+}
+
+model Document {
+  id                 String             @id @default(uuid())
+  userId             String
+  filename           String
+  originalFilename   String
+  fileType           String
+  fileSize           Int
+  storageKey         String
+  status             String             @default("UPLOADED")
+  processingProgress Int                @default(0)
+  totalPages         Int?
+  errorMessage       String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages              DocumentPage[]
+  questions          Question[]
+  jobs               ProcessingJob[]
+  reviewItems        ReviewItem[]
+  
+  relationsAsSource  DocumentRelation[] @relation("SourceRelations")
+  relationsAsTarget  DocumentRelation[] @relation("TargetRelations")
+}
+
+model DocumentPage {
+  id            String   @id @default(uuid())
+  documentId    String
+  pageNumber    Int
+  imagePath     String?
+  rawText       String?
+  ocrText       String?
+  ocrConfidence Float?
+  rotation      Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model Question {
+  id              String           @id @default(uuid())
+  documentId      String
+  questionNumber  String?
+  questionText    String
+  questionType    String
+  confidence      Float
+  status          String           @default("EXTRACTED")
+  startPage       Int
+  endPage         Int
+  rawExtraction   String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  document        Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  options         QuestionOption[]
+  answers         Answer[]
+  reviewItems     ReviewItem[]
+}
+
+model QuestionOption {
+  id          String   @id @default(uuid())
+  questionId  String
+  optionKey   String
+  optionText  String
+  confidence  Float
+  createdAt   DateTime @default(now())
+
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model Answer {
+  id           String   @id @default(uuid())
+  questionId   String
+  answerValue  String?
+  answerSource String   @default("UNKNOWN")
+  confidence   Float
+  matched      Boolean  @default(false)
+  status       String   @default("UNMATCHED")
+  createdAt    DateTime @default(now())
+
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model ProcessingJob {
+  id             String    @id @default(uuid())
+  documentId     String
+  bullmqJobId    String?
+  status         String    @default("QUEUED")
+  currentStage   String    @default("QUEUED")
+  progress       Int       @default(0)
+  errorMessage   String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+
+  document       Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model ReviewItem {
+  id          String    @id @default(uuid())
+  documentId  String
+  questionId  String?
+  issueType   String
+  description String
+  confidence  Float
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+
+  document    Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  question    Question? @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model DocumentRelation {
+  id               String   @id @default(uuid())
+  sourceDocumentId String
+  targetDocumentId String
+  relationType     String
+  createdAt        DateTime @default(now())
+
+  sourceDocument   Document @relation("SourceRelations", fields: [sourceDocumentId], references: [id], onDelete: Cascade)
+  targetDocument   Document @relation("TargetRelations", fields: [targetDocumentId], references: [id], onDelete: Cascade)
+}
