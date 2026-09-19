@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import multer from 'multer';
+import { Queue } from 'bullmq';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient } from '@prisma/client';
 import { authenticateToken, AuthRequest } from '../middlewares/auth.middleware';
@@ -49,7 +50,9 @@ router.post('/', authenticateToken, upload.single('file'), async (req: AuthReque
       }
     });
 
-    // TODO: Enqueue BullMQ task here for async processing
+    
+    const documentQueue = new Queue('document-processing', { connection: { host: process.env.REDIS_HOST || '127.0.0.1', port: 6379 } });
+    await documentQueue.add('process', { documentId: document.id });
 
     res.status(202).json({
       id: document.id,
