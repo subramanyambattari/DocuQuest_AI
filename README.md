@@ -1,45 +1,41 @@
-# Document Intelligence & Question Extraction Service
+# DocuQuest AI
 
-## Overview
-A scalable Document Processing & Question Extraction Service built to accept PDFs and images and convert them into structured, machine-readable questions using PyMuPDF, PaddleOCR, and AI Vision models.
+A highly scalable Document Processing & Question Extraction Service.
 
-## Architecture
-- **Frontend**: Next.js
-- **Backend**: FastAPI
-- **Database**: PostgreSQL with SQLAlchemy 2 & Alembic
-- **Async Processing**: Celery & Redis
-- **Storage**: MinIO (S3-compatible)
+## Architecture Stack
+* **Frontend**: Next.js, Tailwind CSS
+* **Backend**: Node.js, Express.js, TypeScript
+* **Database**: PostgreSQL (via Prisma ORM)
+* **Background Workers**: BullMQ with Redis
+* **AI Engine**: Google Gemini Vision API
+* **Object Storage**: MinIO (S3 Compatible)
 
-## Prerequisites
-- Docker & Docker Compose
-- Node.js (for local frontend dev)
-- Python 3.11 (for local backend dev)
+## Setup Instructions
 
-## Environment Setup
-1. Copy `.env.example` to `.env`.
-2. Ensure values are correctly populated.
-
-## Docker Startup
+### 1. Database & Services
+Ensure PostgreSQL, Redis, and MinIO are running on your machine.
+Copy the environment variables:
 ```bash
-docker compose up -d --build
+cp backend/.env.example backend/.env
 ```
 
-## Database Migration
+### 2. Install Dependencies
+This project uses `concurrently` to run both frontend and backend seamlessly.
 ```bash
-docker compose exec backend alembic upgrade head
+npm install
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate dev --name init
+cd ../frontend
+npm install
 ```
 
-## Health Endpoint
+### 3. Run the application
+Run both the API and the Dashboard from the root directory:
 ```bash
-curl http://localhost:8000/api/v1/health
+npm run dev
 ```
 
-## Current Status (Phase 1-2)
-- ✅ Project structure established
-- ✅ Docker Compose orchestrated (Postgres, Redis, MinIO, Backend, Worker, Frontend)
-- ✅ Database Schema & SQLAlchemy models mapped
-- ✅ Alembic configured
-
-## Next Planned Phases
-- Phase 3 & 4: Auth and Upload capabilities
-- Phase 5 to 8: Async Processing & OCR integration
+### API Postman Collection
+Import `postman_collection.json` into Postman to test the Auth and Document Upload endpoints.
