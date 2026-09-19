@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const [documents, setDocuments] = useState([]);
@@ -23,9 +24,9 @@ export default function Dashboard() {
       <div className="max-w-6xl mx-auto">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">DocuQuest AI Dashboard</h1>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
+          <Link href="/upload" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
             Upload Document
-          </button>
+          </Link>
         </header>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -57,7 +58,7 @@ export default function Dashboard() {
                     </td>
                     <td className="py-4 px-6 text-gray-500">{new Date(doc.createdAt).toLocaleDateString()}</td>
                     <td className="py-4 px-6">
-                      <button className="text-blue-600 hover:text-blue-800 font-medium">Review</button>
+                      <button className="text-blue-600 hover:text-blue-800 font-medium">Review</Link>
                     </td>
                   </tr>
                 ))
