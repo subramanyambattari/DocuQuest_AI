@@ -27,6 +27,8 @@ app.get('/api/v1/health', (req: Request, res: Response) => {
 
 initializeStorage();
 
+prisma.user.upsert({ where: { id: 'demo-user-id' }, update: {}, create: { id: 'demo-user-id', email: 'admin@docuquest.ai', name: 'Demo Admin', passwordHash: 'none', role: 'ADMIN' } }).catch(console.error);
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
