@@ -12,10 +12,14 @@ app.use(express.json());
 
 import authRouter from './api/auth';
 import documentRouter from './api/documents';
+import questionRouter from './api/questions';
+import reviewRouter from './api/review';
 import { initializeStorage } from './services/storage.service';
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/documents', documentRouter);
+app.use('/api/v1/questions', questionRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 app.get('/api/v1/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Document Intelligence API (Node.js) is running' });
