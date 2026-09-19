@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { PrismaClient } from '@prisma/client';
 import IORedis from 'ioredis';
 import { processPdf } from '../processors/pdf.processor';
+import { runExtractionPipeline } from '../services/extraction.service';
 import { getFileUrl } from '../services/storage.service';
 
 const prisma = new PrismaClient();
@@ -40,6 +41,14 @@ export const documentWorker = new Worker(
       });
 
       await processPdf(documentId, fileUrl);
+
+      // Run AI Extraction Pipeline
+      await prisma.processingJob.updateMany({
+        where: { bullmqJobId: job.id },
+        data: { currentStage: 'AI_EXTRACTION', progress: 60 }
+      });
+
+      await runExtractionPipeline(documentId);
 
       // Successfully processed
       await prisma.processingJob.updateMany({
