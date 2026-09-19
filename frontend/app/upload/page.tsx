@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const router = useRouter();
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
+    setErrorMsg(null);
 
     setUploading(true);
     const formData = new FormData();
@@ -25,10 +27,11 @@ export default function UploadPage() {
       if (res.ok) {
         router.push('/');
       } else {
-        alert('Upload failed');
+        const errData = await res.json().catch(() => null);
+        setErrorMsg(errData?.error?.message || 'Upload failed due to a server error. Check if MinIO and Redis are running.');
       }
     } catch (err) {
-      alert('Network error');
+      setErrorMsg('Network error. Is the backend running on port 8000?');
     } finally {
       setUploading(false);
     }
@@ -55,6 +58,7 @@ export default function UploadPage() {
             {uploading ? 'Processing...' : 'Start AI Extraction'}
           </button>
         </form>
+          {errorMsg && <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-lg text-sm font-medium">{errorMsg}</div>}
       </div>
     </main>
   );
